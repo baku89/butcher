@@ -8,7 +8,7 @@ import { type Fit, type Group, type Preset, IMAGE_PRESETS, picked } from '../pre
 import { type Doc, type Mode, type Node, type Slice, type Rendered, WARN_JA, dedupe, nameOf, renderNode, safe, stem, targetsOf } from './model';
 
 export interface Settings {
-  mode: Mode; fmt: 'png' | 'jpeg' | 'webp' | 'ico'; quality: string; size: 'orig' | 'w' | 'h' | Group; picks: string[]; fits: Record<Group, Fit>; px: string; basis: 'canvas' | 'image'; trim: boolean;
+  mode: Mode; fmt: 'png' | 'jpeg' | 'webp' | 'ico'; quality: string; size: 'orig' | 'w' | 'h' | Group; picks: string[]; fits: Record<Group, Fit>; px: string; basis: 'canvas' | 'image'; trim: boolean; slTrim: boolean;
   prefix: string; suffix: string; hidden: boolean; tree: boolean; slFill: boolean; allFiles: boolean; incWarn: boolean; out: 'zip' | 'each' | 'dir';
 }
 // Status line in the inspector footer: plain text or colored parts.
@@ -28,6 +28,11 @@ function cropPixels(rgba: Uint8ClampedArray, W: number, H: number, r: Slice, fil
   }
   if (fill) fillTransparent(out, r.w, r.h);
   return out;
+}
+// The slice rect shrunk to its non-transparent pixels (canvas coordinates), or null when the slice is empty.
+export function trimSlice(rgba: Uint8ClampedArray, W: number, H: number, r: Slice): Slice | null {
+  const b = PsdCore.alphaBounds(cropPixels(rgba, W, H, r, false), r.w, r.h);
+  return b && { ...r, x: r.x + b.x, y: r.y + b.y, w: b.w, h: b.h };
 }
 function fillTransparent(px: Uint8ClampedArray, w: number, h: number) {
   const bins = new Map<number, number[]>(); let any = false;
@@ -69,6 +74,7 @@ function borderColor(c: HTMLCanvasElement, x: number, y: number, w: number, h: n
 }
 async function encode(o: Settings, rgba: Uint8ClampedArray, W: number, H: number, crop?: Slice | null, ps?: Preset | null): Promise<Encoded | null> {
   let c = toCanvas(rgba, W, H), x = 0, y = 0, w = W, h = H;
+  if (crop && o.slTrim) { const t = trimSlice(rgba, W, H, crop); if (!t) return null; crop = t; }
   if (crop) { c = toCanvas(cropPixels(rgba, W, H, crop, o.slFill), crop.w, crop.h); w = crop.w; h = crop.h; }
   else if (o.trim) { const b = PsdCore.alphaBounds(rgba, W, H); if (!b) return null; ({ x, y, w, h } = b); }
   if (o.fmt === 'ico' && !ps) return favicon(c, x, y, w, h);

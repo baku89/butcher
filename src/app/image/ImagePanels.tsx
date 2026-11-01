@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject, type PointerEvent as RPointerEvent } from 'react';
 import * as PsdCore from '../../core/psdcore';
 import { type Doc, type Node, type Slice, WARN_JA, clampSlice, curSlice, dedupe, nameOf, nextSliceName, newSliceId, pathOf, thumbOf } from './model';
-import { filesPerTarget, toCanvas, variantsOf } from './exporter';
+import { filesPerTarget, toCanvas, trimSlice, variantsOf } from './exporter';
 import { IMAGE_PRESETS, SERVICES, toggleId } from '../presets';
 import type { ImageTool } from './useImageTool';
 import { AddHint, DraftInput, Lbl, altOptions, Seg, SignRows, StatusText, Toggles } from '../ui';
@@ -248,7 +248,7 @@ export function Stage({ t, round, onPick }: { t: ImageTool; round: boolean; onPi
     const ctx = c.getContext('2d')!; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cw, ch);
     if (!on) return;
     ctx.setTransform(k * dpr, 0, 0, k * dpr, -x0 * k * dpr, -y0 * k * dpr);
-    const boxes = slicing ? d!.slices.filter(s => s.on) : t.o.trim && bb ? [bb] : [{ x: 0, y: 0, w: W, h: H }];
+    const boxes = slicing ? d!.slices.filter(s => s.on).flatMap(s => !t.o.slTrim ? [s] : pv ? [trimSlice(pv.rgba, pv.W, pv.H, s)].filter(b => !!b) : []) : t.o.trim && bb ? [bb] : [{ x: 0, y: 0, w: W, h: H }];
     for (const b of boxes) {
       // 'auto' color: judged from the preview pixels under the text (outside the canvas counts as transparent)
       let col: '#ffffff' | '#000000' | undefined;
@@ -425,7 +425,7 @@ export function Stage({ t, round, onPick }: { t: ImageTool; round: boolean; onPi
 // ---------- right: export settings
 export function Inspector({ t }: { t: ImageTool }) {
   const { o, set } = t, layer = t.pane === 'layer', ico = o.fmt === 'ico', g = !ico && (o.size === 'sns' || o.size === 'wp') ? o.size : null, sns = g === 'sns', perTarget = filesPerTarget(o);
-  const sw = (id: string, key: 'trim' | 'hidden' | 'tree' | 'slFill' | 'allFiles' | 'incWarn', label: ReactNode, cls?: string, hidden?: boolean, onToggle?: () => void) => (
+  const sw = (id: string, key: 'trim' | 'slTrim' | 'hidden' | 'tree' | 'slFill' | 'allFiles' | 'incWarn', label: ReactNode, cls?: string, hidden?: boolean, onToggle?: () => void) => (
     <label className={'sw' + (cls ? ' ' + cls : '')} htmlFor={id} hidden={hidden}>{label}<input id={id} type="checkbox" checked={o[key]} onChange={e => { set(key, e.target.checked); onToggle?.(); }} /></label>
   );
   return (
@@ -447,6 +447,7 @@ export function Inspector({ t }: { t: ImageTool }) {
           {g && <div className="prop ps"><span><Lbl>{tr('合わせ方')}</Lbl></span><Seg id="fit" value={o.fits[g]} options={[['contain', tr('余白')], ['cover', tr('切り抜き')]]} onChange={v => set('fits', { ...o.fits, [g]: v })} /></div>}
           {sns && <label className="prop ps" htmlFor="snsQuality" hidden={!variantsOf(o).some(v => v?.svc === 'ig')}><span><Lbl>{tr('画質')}</Lbl></span><span className="unit"><input id="snsQuality" className="n" type="number" min="1" max="100" value={o.quality} onChange={e => set('quality', e.target.value)} /></span></label>}
           {sw('trim', 'trim', <span><Lbl>{tr('余白カット')}</Lbl></span>, 'prop pair lp', !layer)}
+          {sw('slTrim', 'slTrim', <span><Lbl>{tr('余白カット')}</Lbl></span>, 'prop pair sp', layer)}
         </div>
         <div className="sec">
           <label className="prop pair fill" htmlFor="prefix"><span><Lbl>{tr('接頭辞')}</Lbl></span><input id="prefix" className="t" type="text" value={o.prefix} onChange={e => set('prefix', e.target.value)} /></label>

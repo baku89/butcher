@@ -10,7 +10,7 @@ import { FITS_DEFAULT, PICKS_DEFAULT } from '../presets';
 
 export type Pane = 'layer' | 'slice';
 const INIT: Settings = {
-  mode: 'folder', fmt: 'png', quality: '90', size: 'orig', picks: PICKS_DEFAULT, fits: FITS_DEFAULT, px: '1080', basis: 'canvas', trim: true,
+  mode: 'folder', fmt: 'png', quality: '90', size: 'orig', picks: PICKS_DEFAULT, fits: FITS_DEFAULT, px: '1080', basis: 'canvas', trim: true, slTrim: false,
   prefix: '', suffix: '', hidden: false, tree: true, slFill: true, allFiles: false, incWarn: false, out: 'zip',
 };
 
