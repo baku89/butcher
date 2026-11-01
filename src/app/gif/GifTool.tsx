@@ -3,7 +3,7 @@
 import { useEffect, useImperativeHandle, useLayoutEffect, useReducer, useRef, useState, type CSSProperties, type PointerEvent as RPointerEvent, type Ref } from 'react';
 import { saveBlob, saveFailText, saveFiles, shareMode } from '../save';
 import type { Status } from '../image/exporter';
-import { AddHint, DraftInput, Lbl, altOptions, Pick, Seg, SignRows, StatusText, Toggles } from '../ui';
+import { AddHint, DraftInput, Lbl, altOptions, Pick, Seg, SignRows, StatusText, ThemeRow, Toggles } from '../ui';
 import { type SignColor, contrastColor, drawSign, getSign, sampleUnder, signActive, signReady, useSign } from '../sign';
 import { type Group, type Preset, PICKS_DEFAULT, SERVICES, VIDEO_PRESETS, X_GIF, picked, toggleId } from '../presets';
 import { tr } from '../i18n';
@@ -65,7 +65,7 @@ export function GifTool({ active, ref, onPick, onState }: { active: boolean; ref
   const vid = useRef<HTMLVideoElement>(null as unknown as HTMLVideoElement);
   if (!vid.current) { const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; vid.current = v; }
   const v = vid.current;
-  const pv = useRef<HTMLCanvasElement>(null), stageRef = useRef<HTMLDivElement>(null), thumbs = useRef<HTMLCanvasElement>(null), track = useRef<HTMLDivElement>(null), resV = useRef<HTMLVideoElement>(null), presetRef = useRef<HTMLInputElement>(null);
+  const pv = useRef<HTMLCanvasElement>(null), stageRef = useRef<HTMLDivElement>(null), thumbs = useRef<HTMLCanvasElement>(null), track = useRef<HTMLDivElement>(null), resV = useRef<HTMLVideoElement>(null);
   const [statusLine, setStatusState] = useState<Status>([]);
   const status = (t: string, c?: 'ok' | 'warn' | 'err') => setStatusState([{ t, c }]);
   const [avail, setAvail] = useState({ w: 0, h: 0 });
@@ -639,17 +639,13 @@ export function GifTool({ active, ref, onPick, onState }: { active: boolean; ref
             <SignRows />
           </div>
           <div className="sec">
-                        <div className="prop pair"><span><Lbl>{tr('目標サイズ')}</Lbl></span><span className="unit"><DraftInput id="gTarget" className="n" type="number" min="0" step="0.1" placeholder={tr('なし')} value={s.target || ''} onBlur={fieldBlur} onDraft={num('target', val => Math.max(0, val))} />MB</span></div>
+            <div className="prop pair"><span><Lbl>{tr('目標サイズ')}</Lbl></span><span className="unit"><DraftInput id="gTarget" className="n" type="number" min="0" step="0.1" placeholder={tr('なし')} value={s.target || ''} onBlur={fieldBlur} onDraft={num('target', val => Math.max(0, val))} />MB</span></div>
             <div className="prop pair" id="gDotRow"><span><Lbl>{tr('ドット')}</Lbl></span><span className="unit"><Pick id="gDot" label={tr('ドットの大きさ')} value={dotOn() ? s.dot : 0} options={dotSizes(s.dot).map(d => [d, d ? d + 'px' : tr('なし'), d || tr('なし')])} onChange={d => { s.dot = d; changed(); }} />
               <select id="gColors" aria-label={tr('色数')} value={String(s.colors)} hidden={s.fmt !== 'gif' && !dotOn()} onChange={e => { s.colors = +e.target.value; changed(); }}>{['256', '128', '64', '32', '16', '8', '4'].map(x => <option key={x} value={x}>{tr('{n}色', { n: x })}</option>)}{altOptions([['{n}色', { n: 256 }]])}</select></span></div>
             <label className="prop pair" htmlFor="gQ" id="gQRow" hidden={s.fmt !== 'webp'}><span><Lbl>{tr('画質')}</Lbl></span><span className="unit"><DraftInput id="gQ" className="n" type="number" min="1" max="100" value={s.q} onBlur={fieldBlur} onDraft={num('q', val => Math.max(1, Math.min(100, Math.round(val))))} /></span></label>
-            <div className="prop"><span><Lbl>{tr('設定')}</Lbl></span><span className="unit"><button className="link" id="gPLoad" onClick={() => presetRef.current!.click()}><Lbl>{tr('読込')}</Lbl></button><button className="link" id="gPSave"
-              onClick={() => saveBlob('gif-preset.json', new Blob([JSON.stringify({ type: 'gif-preset', version: 1, ...Object.fromEntries(KEYS.map(k => [k, s[k]])) }, null, 2)], { type: 'application/json' }))}><Lbl>{tr('保存')}</Lbl></button>
-              <input ref={presetRef} id="gPFile" type="file" accept=".json,application/json" hidden onChange={async e => {
-                const f = e.target.files?.[0]; e.target.value = ''; if (!f) return;
-                try { const j = fixRatio(JSON.parse(await f.text())); for (const k of KEYS) if (j[k] !== undefined) (s as any)[k] = j[k]; changed(); status(tr('設定を読込'), 'ok'); }
-                catch { status(tr('設定を読み込めません'), 'err'); }
-              }} /></span></div>
+          </div>
+          <div className="sec">
+            <ThemeRow />
           </div>
         </div>
         <div className="foot">
