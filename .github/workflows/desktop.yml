@@ -11,8 +11,19 @@ on:
 permissions:
   contents: write
 jobs:
-  windows:
-    runs-on: windows-latest
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: Butcher-Windows
+            script: dist
+            files: desktop/dist/*.exe
+          - os: macos-latest
+            name: Butcher-Mac
+            script: dist:mac
+            files: desktop/dist/*.dmg
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,20 +37,38 @@ jobs:
       - run: npm run build
       - run: npm ci
         working-directory: desktop
-      - run: npm run dist
+      - run: npm run ${{ matrix.script }}
         working-directory: desktop
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          CSC_FOR_PULL_REQUEST: 'true'
+      - name: Verify signature
+        if: runner.os == 'macOS'
+        run: codesign --verify --deep --strict --verbose=2 desktop/dist/mac-universal/Butcher.app && codesign -dv desktop/dist/mac-universal/Butcher.app
+      - name: Launch check
+        if: runner.os == 'macOS'
+        run: |
+          desktop/dist/mac-universal/Butcher.app/Contents/MacOS/Butcher & pid=$!
+          sleep 15
+          kill -0 $pid && pgrep -f "Butcher Helper \(Renderer\)" && kill $pid
       - uses: actions/upload-artifact@v4
         with:
-          name: Butcher-Windows
-          path: desktop/dist/*.exe
+          name: ${{ matrix.name }}
+          path: ${{ matrix.files }}
+  release:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
       - name: Release
-        if: github.event_name == 'workflow_dispatch' && inputs.release
-        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           v=$(node -p "require('./desktop/package.json').version")
           if gh release view "v$v" >/dev/null 2>&1; then echo "v$v は公開済みです。desktop/package.json の version を上げてください。"; exit 1; fi
-          gh release create "v$v" desktop/dist/Butcher-Setup-$v.exe --target "$GITHUB_SHA" --title "Butcher $v" --notes ""
+          gh release create "v$v" out/Butcher-Setup-$v.exe out/Butcher-$v.dmg --target "$GITHUB_SHA" --title "Butcher $v" --notes ""

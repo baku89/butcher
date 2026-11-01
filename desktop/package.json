@@ -2,14 +2,15 @@
   "name": "butcher-desktop",
   "productName": "Butcher",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Butcher",
   "author": "pikoponpoko",
   "main": "main.cjs",
   "scripts": {
     "app": "node copy-app.cjs",
     "start": "npm run app && electron .",
-    "dist": "npm run app && electron-builder --win --x64 --publish never"
+    "dist": "npm run app && electron-builder --win --x64 --publish never",
+    "dist:mac": "npm run app && electron-builder --mac --universal --publish never"
   },
   "devDependencies": {
     "electron": "45.1.0",
@@ -19,15 +20,49 @@
     "appId": "com.pikoponpoko.butcher",
     "productName": "Butcher",
     "artifactName": "Butcher-Setup-${version}.${ext}",
-    "directories": { "output": "dist", "buildResources": "build" },
-    "files": ["main.cjs", "preload.cjs", "app/**/*"],
-    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }] },
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "app/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
       "deleteAppDataOnUninstall": false,
       "shortcutName": "Butcher"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "icon": "build/icon-mac.png",
+      "category": "public.app-category.graphics-design",
+      "identity": "-",
+      "artifactName": "Butcher-${version}.${ext}",
+      "hardenedRuntime": false
+    },
+    "dmg": {
+      "title": "Butcher ${version}"
     }
   }
 }
