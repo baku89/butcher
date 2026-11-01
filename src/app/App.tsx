@@ -9,6 +9,20 @@ import { IMG_ACCEPT, VIDEO_ACCEPT, pickFiles, takeShared } from './pick';
 
 type Tool = 'img' | 'gif';
 
+declare global { interface Window { butcherDesktop?: { version: string; checkUpdate(): Promise<'latest' | 'opened'> } } }
+
+// Desktop app only: opens the latest release page when a newer version exists.
+function UpdateLink() {
+  const [st, setSt] = useState<'idle' | 'busy' | 'latest'>('idle');
+  const run = async () => {
+    setSt('busy');
+    const r = await window.butcherDesktop!.checkUpdate().catch(() => 'opened' as const);
+    setSt(r === 'latest' ? 'latest' : 'idle');
+    if (r === 'latest') setTimeout(() => setSt('idle'), 3000);
+  };
+  return <button className="link" id="update" disabled={st === 'busy'} onClick={run}><Lbl>{tr(st === 'latest' ? '最新版です' : 'アップデートを確認')}</Lbl></button>;
+}
+
 export function App() {
   const t = useImageTool();
   const lang = useLang();
@@ -75,6 +89,7 @@ export function App() {
           ))}
         </div>
         <div className="bar-r">
+          {window.butcherDesktop && <UpdateLink />}
           <button className="link" id="lang" onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}><Lbl other={lang === 'ja' ? '日本語' : 'English'}>{lang === 'ja' ? 'English' : '日本語'}</Lbl></button>
           <button className="btn img-only" id="add" hidden={!t.docs.length} onClick={pickImages}><Lbl>{tr('追加')}</Lbl></button>
           <button className="btn gif-only" id="gAdd" hidden={!gifSt.open} onClick={pickVideo}><Lbl>{tr('追加')}</Lbl></button>
