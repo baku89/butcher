@@ -1,4 +1,4 @@
-// Desktop (Windows) shell: serves the built browser app from ./app over app://butcher/.
+// Desktop (Windows / macOS) shell: serves the built browser app from ./app over app://butcher/.
 const { app, BrowserWindow, Menu, ipcMain, nativeTheme, net, protocol, shell } = require('electron');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
@@ -6,6 +6,7 @@ const { pathToFileURL } = require('node:url');
 const REPO = 'pikoponpoko/butcher';
 const RELEASES = `https://github.com/${REPO}/releases/latest`;
 const ROOT = path.join(__dirname, 'app');
+const MAC = process.platform === 'darwin';
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, codeCache: true } }]);
 
@@ -50,7 +51,8 @@ ipcMain.on('version', e => { e.returnValue = app.getVersion(); });
 
 app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
 app.whenReady().then(() => {
-  Menu.setApplicationMenu(null);
+  // macOS needs a menu bar for Cmd+C / Cmd+V / Cmd+Q etc.
+  Menu.setApplicationMenu(MAC ? Menu.buildFromTemplate([{ role: 'appMenu' }, { role: 'editMenu' }, { role: 'windowMenu' }]) : null);
   protocol.handle('app', req => {
     const p = path.normalize(path.join(ROOT, decodeURIComponent(new URL(req.url).pathname)));
     if (!p.startsWith(ROOT)) return new Response('', { status: 404 });
@@ -58,4 +60,5 @@ app.whenReady().then(() => {
   });
   createWindow();
 });
-app.on('window-all-closed', () => app.quit());
+app.on('window-all-closed', () => { if (!MAC) app.quit(); });
+app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
