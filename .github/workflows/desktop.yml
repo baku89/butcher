@@ -45,6 +45,12 @@ jobs:
       - name: Verify signature
         if: runner.os == 'macOS'
         run: codesign --verify --deep --strict --verbose=2 desktop/dist/mac-universal/Butcher.app && codesign -dv desktop/dist/mac-universal/Butcher.app
+      - name: Launch check
+        if: runner.os == 'macOS'
+        run: |
+          desktop/dist/mac-universal/Butcher.app/Contents/MacOS/Butcher & pid=$!
+          sleep 15
+          kill -0 $pid && pgrep -f "Butcher Helper \(Renderer\)" && kill $pid
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}

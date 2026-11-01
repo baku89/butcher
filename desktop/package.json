@@ -58,7 +58,8 @@
       "icon": "build/icon-mac.png",
       "category": "public.app-category.graphics-design",
       "identity": "-",
-      "artifactName": "Butcher-${version}.${ext}"
+      "artifactName": "Butcher-${version}.${ext}",
+      "hardenedRuntime": false
     },
     "dmg": {
       "title": "Butcher ${version}"
