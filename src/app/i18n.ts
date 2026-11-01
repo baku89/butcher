@@ -73,8 +73,8 @@ const EN: Record<string, string> = {
   // GIF / video
   'GIF書き出し設定': 'GIF export settings', '元': 'Orig', '元（{f}）': 'Orig ({f})', '自由': 'Free', '結果': 'Result', 'カスタム': 'Custom', '再生': 'Play', '停止': 'Pause', '透明': 'Clear', '背景': 'Background',
   '範囲': 'Range', '開始': 'Start', '終了': 'End', '秒': 's', '速度': 'Speed', 'ループ': 'Loop', '無限': 'Forever', '1回': 'Once', '2回': '2 times', '3回': '3 times', '回': 'times',
-  '目標サイズ': 'Target size', 'なし': 'None', 'ドット': 'Pixel', 'ドットの大きさ': 'Pixel size', '色数': 'Colors', '{n}色': '{n} colors', '設定': 'Preset',
-  '設定を読込': 'Preset loaded', '設定を読み込めません': 'Can’t load preset', 'このまま保存': 'Save anyway',
+  '目標サイズ': 'Target size', 'なし': 'None', 'ドット': 'Pixel', 'ドットの大きさ': 'Pixel size', '色数': 'Colors', '{n}色': '{n} colors',
+  'このまま保存': 'Save anyway', 'テーマ': 'Theme', 'ライト': 'Light', 'ダーク': 'Dark',
   '{n} フレーム': '{n} frames', '{s}秒': '{s}s', '{n} フレームを超えています': 'Over {n} frames', 'GIFは50fpsまで': 'GIF max 50 fps',
   '{s} を書き出し': '{s} exported', '{n} 件は目標 {t} MB を超えています': '{n} over the {t} MB target', '目標 {t} MB に届きません（最小 {s}）': 'Can’t reach {t} MB (smallest {s})',
   '範囲が長すぎるかサイズが大きすぎます。範囲・サイズ・FPSを下げてください': 'Range or size is too large. Lower the range, size or FPS',

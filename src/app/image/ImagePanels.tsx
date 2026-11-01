@@ -5,7 +5,7 @@ import { type Doc, type Node, type Slice, WARN_JA, clampSlice, curSlice, dedupe,
 import { filesPerTarget, toCanvas, trimSlice, variantsOf } from './exporter';
 import { IMAGE_PRESETS, SERVICES, toggleId } from '../presets';
 import type { ImageTool } from './useImageTool';
-import { AddHint, DraftInput, Lbl, altOptions, Seg, SignRows, StatusText, Toggles } from '../ui';
+import { AddHint, DraftInput, Lbl, altOptions, Seg, SignRows, StatusText, ThemeRow, Toggles } from '../ui';
 import { tr, trAlt } from '../i18n';
 import { contrastColor, drawSign, signActive, signLayout, signReady, useSign } from '../sign';
 
@@ -461,6 +461,9 @@ export function Inspector({ t }: { t: ImageTool }) {
           {sw('tree2', 'tree', tr('フォルダ階層を保持'), 'lp', !layer)}
           {sw('slFill', 'slFill', tr('透明部分を周囲の色で補完'), 'sp', layer)}
           {sw('allFiles', 'allFiles', tr('開いているファイルをすべて処理'))}
+        </div>
+        <div className="sec">
+          <ThemeRow />
         </div>
       </div>
       <div className="foot">

@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type InputHTMLAttributes,
 import type { Status } from './image/exporter';
 import { setSign, useSign } from './sign';
 import { otherOf, tr, trAlt } from './i18n';
+import { setTheme, useTheme } from './theme';
 
 // Empty preview: the whole stage opens the file picker; files can also be dropped anywhere.
 export function AddHint({ id, hidden }: { id?: string; hidden?: boolean }) {
@@ -110,4 +111,9 @@ export function SignRows() {
       <Seg value={s.color} options={[['auto', tr('自動')], ['#ffffff', tr('白')], ['#000000', tr('黒')]]} onChange={color => setSign({ color })} />
     </span></div>
   </>;
+}
+
+export function ThemeRow() {
+  const t = useTheme();
+  return <div className="prop"><span><Lbl>{tr('テーマ')}</Lbl></span><Seg value={t} options={[['auto', tr('自動')], ['light', tr('ライト')], ['dark', tr('ダーク')]]} onChange={setTheme} /></div>;
 }
