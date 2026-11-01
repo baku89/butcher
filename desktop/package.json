@@ -1,0 +1,33 @@
+{
+  "name": "butcher-desktop",
+  "productName": "Butcher",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Butcher",
+  "author": "pikoponpoko",
+  "main": "main.cjs",
+  "scripts": {
+    "app": "node copy-app.cjs",
+    "start": "npm run app && electron .",
+    "dist": "npm run app && electron-builder --win --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.17.0"
+  },
+  "build": {
+    "appId": "com.pikoponpoko.butcher",
+    "productName": "Butcher",
+    "artifactName": "Butcher-Setup-${version}.${ext}",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.cjs", "preload.cjs", "app/**/*"],
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }] },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false,
+      "shortcutName": "Butcher"
+    }
+  }
+}

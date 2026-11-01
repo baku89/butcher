@@ -37,7 +37,7 @@ const JA_OF = () => jaOf ||= Object.fromEntries(Object.entries(EN).map(([k, v]) 
 
 const EN: Record<string, string> = {
   // toolbar
-  '画像': 'Image', 'GIF・動画': 'GIF/Video', '開く': 'Open', '閉じる': 'Close', '追加': 'Add', 'クリックまたはドロップで追加': 'Click or drop to add', 'タップして追加': 'Tap to add',
+  '画像': 'Image', 'GIF・動画': 'GIF/Video', '開く': 'Open', '閉じる': 'Close', 'アップデートを確認': 'Check for updates', '最新版です': 'Up to date', '追加': 'Add', 'クリックまたはドロップで追加': 'Click or drop to add', 'タップして追加': 'Tap to add',
   // layers / slices
   'レイヤー': 'Layers', 'スライス': 'Slices', 'すべて': 'All', '解除': 'None', '自動': 'Auto', '読込': 'Load', '保存': 'Save', '全削除': 'Delete all', '畳む': 'Collapse',
   '表示': 'Show', '非表示': 'Hide', '開閉': 'Expand', '元の名前：{n}': 'Original name: {n}', '(名前なし)': '(Untitled)', 'クリップ': 'Clip', '警告': 'Warning',
